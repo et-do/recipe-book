@@ -1,7 +1,9 @@
-# Recipe format (draft v0)
+# Recipe format (v1)
 
-Status: **design draft**. Nothing parses this yet. Finalise it when the schema
-and the chart renderer are built, then keep this file as the reference.
+Status: **enforced.** The build checks every rule here
+(`src/lib/recipe/schema.ts`, `src/lib/recipe/steps.ts`) and fails with a
+message naming the file, field and step. Keep this file and the schema in
+step.
 
 A recipe is one Markdown file: structured YAML frontmatter (everything the site
 needs to compute with) plus a short free-text body (everything a person needs
@@ -11,8 +13,11 @@ to read).
 
 - `<category>` is just the subfolder name (`baking`, `mains`, `sauces`, ...).
   Create one when the first recipe needs it.
-- `<slug>` is kebab-case and is the recipe's permanent id and URL.
-- An optional photo sits next to it as `<slug>.jpg`.
+- `<slug>` is kebab-case and is the recipe's permanent id. The category folder
+  is not part of the id, so a recipe can move category without breaking
+  links. Two recipes with the same slug fail the build, even in different
+  folders.
+- An optional photo sits next to it as `<slug>.jpg` (not wired up yet).
 
 ## The recipe chart
 
@@ -36,8 +41,11 @@ the rows it combines, reading left to right in time.
     +----------------------------+------------------+------+-------+
 
 The chart is **generated** from `ingredients` + `steps`; nobody draws it by hand.
+(The sketch above is rough; the site renders the real thing.)
 
 ## Frontmatter
+
+Keys are checked strictly: a misspelt or unknown key fails the build.
 
 ```yaml
 title: Brownies
@@ -82,18 +90,69 @@ steps:                                # chronological
     detail: 175 °C · 30–40 min
 ```
 
+| Field         | Required | Notes                                                 |
+| ------------- | -------- | ----------------------------------------------------- |
+| `title`       | yes      |                                                       |
+| `description` | yes      | One line.                                             |
+| `tags`        | no       | kebab-case.                                           |
+| `yield`       | yes      | `{ qty, unit }`; `unit` is free text (pieces, jar).   |
+| `time`        | yes      | `{ active, total }` whole minutes; total ≥ active.    |
+| `equipment`   | no       | Free text.                                            |
+| `ratio_base`  | no       | An ingredient id weighed in `g`.                      |
+| `prep`        | no       | Free text, one line each.                             |
+| `ingredients` | yes      | At least one. Fields below.                           |
+| `steps`       | yes      | At least one. Fields below.                           |
+
+Ingredient fields:
+
+| Field  | Required          | Notes                                                       |
+| ------ | ----------------- | ----------------------------------------------------------- |
+| `id`   | yes               | kebab-case handle for steps; unique within the recipe.     |
+| `item` | yes               | Display name.                                               |
+| `qty`  | yes               | A positive number, or `null` for unmeasured.                |
+| `unit` | if `qty` is set   | `g` or `each`. Nothing else.                                |
+| `alt`  | no                | Secondary measure: `¼ tsp`, `2 large`.                      |
+| `note` | if `qty` is null  | `to taste`, `for dusting`.                                  |
+| `ref`  | no                | Ingredient page id when it differs from `id`, e.g. two lots of sugar: `id: sugar-glaze`, `ref: sugar`. |
+
+Step fields:
+
+| Field    | Required | Notes                                                    |
+| -------- | -------- | -------------------------------------------------------- |
+| `do`     | yes      | The action, short: `melt`, `fold in`.                    |
+| `use`    | no       | Ingredient ids and named step results added now.         |
+| `detail` | no       | Small print under the action: time, temperature, cue.   |
+| `start`  | no       | `true` begins a sub-assembly.                            |
+| `id`     | no       | Names this step's result so a later step can `use` it.  |
+
 ### Step rules
 
 - Each step acts on **the result of the previous step** plus whatever is in
   `use`. That one rule covers most recipes and keeps the list flat.
-- `detail` is the small print under the action (time, temperature, cue).
-- Sub-assemblies (a frosting, a marinade made separately): give the first step
-  `start: true` so it does not inherit the previous result, give the last one an
-  `id`, and reference that id in a later step's `use`.
-- Every ingredient must be used exactly once. Ingredients a step combines must
-  be adjacent rows, so order `ingredients` in the order they go in.
-- The validator should fail the build on: unknown ids, unused ingredients,
-  non-adjacent rows, missing units.
+- Sub-assemblies (a frosting, a dry mix, a marinade made separately): give the
+  step that finishes it an `id`, and reference that id in a later step's
+  `use`. The step after a named one must have `start: true` (it begins
+  something new). Example:
+
+  ```yaml
+  steps:
+    - { do: sift, use: [flour, cocoa], id: dry }
+    - { do: cream, use: [butter, sugar], start: true }
+    - { do: fold in, use: [dry] }
+  ```
+
+The build fails if:
+
+- an id in `use` is neither an ingredient nor a named step;
+- an ingredient is never used, or used twice;
+- a named result is never used, used twice, or used before it is made;
+- `start: true` throws away an unnamed result;
+- the last step has an `id` (the last step is the finished dish);
+- a step acts on nothing (preheating and similar belong in `prep`);
+- **a step's rows are not contiguous.** Everything a step contains so far
+  must be one unbroken block of rows, or the chart cannot be drawn. Order
+  `ingredients` in the order they go in, keeping each sub-assembly's
+  ingredients together.
 
 ## Units
 
@@ -105,8 +164,8 @@ steps:                                # chronological
 - Temperatures in °C, lengths in cm, time in minutes.
 - No cups, ounces or °F in source files. If imperial display is ever wanted,
   the site converts.
-- Genuinely uncountable-by-weight things ("1 bay leaf", "salt to taste") use
-  `unit: each` or `qty: null` with a `note`.
+- Genuinely uncountable-by-weight things use `unit: each` ("1 bay leaf") or
+  `qty: null` with a `note` ("salt, to taste").
 
 ## Body
 
@@ -137,7 +196,8 @@ Wiki-style, by slug, across recipes, ingredients and techniques:
 Broken links should fail the build. Each page lists its backlinks ("used in").
 
 `content/ingredients/<id>.md` and `content/techniques/<slug>.md` are ordinary
-wiki pages. Ingredient pages are the home for general substitution and density
+wiki pages. Their frontmatter is `title` (required), `description` and
+`tags` (optional). Ingredient pages are the home for general substitution and density
 info, so recipes only carry what is specific to them.
 
 ## Derived on the site (never stored)

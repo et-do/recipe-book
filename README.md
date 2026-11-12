@@ -12,6 +12,7 @@ site exist; recipe pages are not built yet.
 | ----------------- | ----------------------------------------- |
 | `npm run dev`     | Dev server at http://localhost:4321       |
 | `npm run check`   | Type-check and validate                   |
+| `npm test`        | Unit tests (recipe step rules)            |
 | `npm run build`   | Build the static site into `dist/`        |
 | `npm run preview` | Serve the built site                      |
 

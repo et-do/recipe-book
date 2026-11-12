@@ -5,12 +5,13 @@ with an interactive coil-bound "recipe book" view.
 
 ## Current state
 
-Roadmap item 1 done: Astro 7 (minimal template, strict TS) is scaffolded at
-the root with `dev`, `build`, `preview`, `check` scripts; it renders a single
-placeholder home page. Dev server host and polling are set in
-`astro.config.mjs`. Item 6 (CI + deploy to GitHub Pages) was pulled forward
-and is in place. **No content collections and no recipes yet.** The next
-step is item 2 of the roadmap below.
+Roadmap items 1, 2 and 6 are done. Astro 7 (strict TS) at the root, live at
+https://recipes.ethan-domokos.ca, deployed by GitHub Actions. Content
+collections and the recipe schema validate everything in
+`docs/recipe-format.md` (v1) at build time; the step logic is unit tested
+with Vitest (`npm test`). The site itself is still a single placeholder
+page, and `content/` is empty, so the build logs "No files found" warnings;
+those are expected. The next step is item 3 of the roadmap below.
 
 Update this section and the roadmap as work lands.
 
@@ -39,7 +40,7 @@ Update this section and the roadmap as work lands.
       ingredients/<id>.md
       techniques/<slug>.md
     templates/recipe.md   copy this to start a recipe
-    docs/recipe-format.md the recipe format (draft v0) - read before touching recipes
+    docs/recipe-format.md the recipe format (v1, enforced) - read before touching recipes
     src/, public/         site code (Astro)
     astro.config.mjs      Astro config
 
@@ -68,11 +69,17 @@ recipes never live under `src/`.
 
 1. ~~Scaffold Astro at the root (minimal template, strict TS; `dev`, `build`,
    `preview`, `check` scripts).~~ Done.
-2. Content collections + Zod schema for recipes / ingredients / techniques.
-   Finalise `docs/recipe-format.md` to match what is implemented. Build-time
-   validation of the step rules listed there.
+2. ~~Content collections + Zod schema; finalise `docs/recipe-format.md`;
+   build-time step validation.~~ Done. `src/content.config.ts`,
+   `src/lib/recipe/schema.ts` (Zod, strict objects), `src/lib/recipe/steps.ts`
+   (step analysis: issues + each step's row span and inputs). Entry id =
+   file name; category = recipe's folder (derive from `entry.filePath`).
+   Duplicate slugs fail the build (`prerenderConflictBehavior: 'error'`).
+   Added `ref` and `note` ingredient fields (see format doc). Cross-collection
+   checks (wiki links, slug uniqueness across collections, `ref` pointing at
+   a real ingredient page) belong to item 4.
 3. Recipe chart component: turn `ingredients` + `steps` into the row-spanning
-   table. This is the hardest and most important piece; get it right on a few
+   table, building on `analyseSteps()` nodes. This is the hardest and most important piece; get it right on a few
    differently shaped recipes (linear, sub-assembly, no-cook) before styling.
 4. Wiki shell: home, category indexes, recipe / ingredient / technique pages,
    `[[wikilink]]` remark plugin, backlinks, tag pages, search (Pagefind).

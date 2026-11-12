@@ -13,13 +13,17 @@ ingredients:
   - id:
     item:
     qty:
-    unit: g
+    unit: g                   # g or each
     # alt:                    # spoon measure / count, e.g. "¼ tsp", "2 large"
+    # note:                   # needed when qty is null, e.g. "to taste"
+    # ref:                    # ingredient page id, if different from id
 
 steps:
   - do:
     use: []
-    # detail:
+    # detail:                 # time, temperature, cue
+    # id:                     # name the result of a sub-assembly
+    # start: true             # begin a new sub-assembly
 ---
 
 ## Notes
