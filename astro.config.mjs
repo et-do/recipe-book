@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://recipes.ethan-domokos.ca',
   server: {
     // Listen on all interfaces so the devcontainer's forwarded port works
     // (same as passing --host).

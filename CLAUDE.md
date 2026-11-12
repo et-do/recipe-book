@@ -8,8 +8,9 @@ with an interactive coil-bound "recipe book" view.
 Roadmap item 1 done: Astro 7 (minimal template, strict TS) is scaffolded at
 the root with `dev`, `build`, `preview`, `check` scripts; it renders a single
 placeholder home page. Dev server host and polling are set in
-`astro.config.mjs`. **No content collections, no recipes, no CI yet, and no
-git remote.** The next step is item 2 of the roadmap below.
+`astro.config.mjs`. Item 6 (CI + deploy to GitHub Pages) was pulled forward
+and is in place. **No content collections and no recipes yet.** The next
+step is item 2 of the roadmap below.
 
 Update this section and the roadmap as work lands.
 
@@ -52,8 +53,11 @@ recipes never live under `src/`.
   Chosen because it is static, Markdown-native, and lets the flipbook be one
   interactive island on an otherwise zero-JS site. Scaffolded on Astro 7.4
   (TypeScript 6, `astro/tsconfigs/strict`).
-- **Hosting: GitHub Pages via GitHub Actions** (assumed, not confirmed with
-  Ethan; the repo has no remote yet).
+- **Hosting: GitHub Pages via GitHub Actions**, repo `et-do/recipe-book`,
+  served at https://recipes.ethan-domokos.ca (CNAME `recipes` →
+  `et-do.github.io` in Squarespace DNS; custom domain set in repo Pages
+  settings, so no `public/CNAME` file is needed). The apex domain is a
+  separate GitHub Pages site; do not touch its records.
 - **Recipes are data.** Quantities and steps are structured frontmatter; the
   chart, ratios, scaling and the book pages are all generated from it.
 - **Units:** grams first (liquids too), °C, cm, minutes. Spoon/count measures
@@ -75,8 +79,9 @@ recipes never live under `src/`.
 5. Book view (`/book`): coil binder, CSS 3D page flip, keyboard / swipe / click,
    one recipe per spread, generated from the same data. Respect
    `prefers-reduced-motion`.
-6. CI: on PR run check + build; on push to `main` build and deploy to Pages.
-   Needs the GitHub remote and Pages enabled (ask Ethan).
+6. ~~CI: on PR run check + build; on push to `main` build and deploy to
+   Pages.~~ Done early (`.github/workflows/ci.yml`, `deploy.yml`). Add the
+   Pagefind step to the build when search lands.
 7. First real recipes from Ethan.
 
 Ideas already floated to Ethan (not yet approved, do not build unprompted):
