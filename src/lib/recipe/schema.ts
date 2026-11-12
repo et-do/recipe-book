@@ -55,6 +55,15 @@ export const step = z.strictObject({
 
 const minutes = z.number().int().nonnegative();
 
+/** A source that inspired or informed the recipe. */
+export const credit = z.strictObject({
+  /** What it is: page title, book, person. */
+  title: z.string().min(1),
+  url: z.url({ protocol: /^https?$/ }).optional(),
+  /** What was taken or changed: "base ratio", "halved the sugar". */
+  note: z.string().min(1).optional(),
+});
+
 export const recipe = z
   .strictObject({
     title: z.string().min(1),
@@ -67,6 +76,7 @@ export const recipe = z
     prep: z.array(z.string().min(1)).default([]),
     ingredients: z.array(ingredientLine).min(1),
     steps: z.array(step).min(1),
+    credits: z.array(credit).default([]),
   })
   .superRefine((r, ctx) => {
     if (r.time.total < r.time.active) {
@@ -99,3 +109,4 @@ export const wikiPage = z.strictObject({
 export type Recipe = z.infer<typeof recipe>;
 export type IngredientLine = z.infer<typeof ingredientLine>;
 export type Step = z.infer<typeof step>;
+export type Credit = z.infer<typeof credit>;

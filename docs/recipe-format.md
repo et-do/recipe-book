@@ -102,6 +102,7 @@ steps:                                # chronological
 | `prep`        | no       | Free text, one line each.                             |
 | `ingredients` | yes      | At least one. Fields below.                           |
 | `steps`       | yes      | At least one. Fields below.                           |
+| `credits`     | no       | Sources that inspired or informed it. Fields below.   |
 
 Ingredient fields:
 
@@ -114,6 +115,22 @@ Ingredient fields:
 | `alt`  | no                | Secondary measure: `¼ tsp`, `2 large`.                      |
 | `note` | if `qty` is null  | `to taste`, `for dusting`.                                  |
 | `ref`  | no                | Ingredient page id when it differs from `id`, e.g. two lots of sugar: `id: sugar-glaze`, `ref: sugar`. |
+
+Credit fields (a web page, a book, a person):
+
+| Field   | Required | Notes                                                 |
+| ------- | -------- | ----------------------------------------------------- |
+| `title` | yes      | `Serious Eats: Fudgy Brownies`, `Grandma`.            |
+| `url`   | no       | `http(s)://` only.                                    |
+| `note`  | no       | What came from it: `base ratio`, `espresso idea`.     |
+
+```yaml
+credits:
+  - title: Serious Eats - Fudgy Brownies
+    url: https://www.seriouseats.com/...
+    note: base ratio
+  - title: Grandma
+```
 
 Step fields:
 

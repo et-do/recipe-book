@@ -197,6 +197,19 @@ describe('recipe schema', () => {
     ]);
   });
 
+  it('accepts credits with or without a url, rejects bad urls', () => {
+    const ok = recipe.parse({
+      ...base,
+      credits: [
+        { title: 'Serious Eats: vinaigrette', url: 'https://www.seriouseats.com/x', note: 'ratio' },
+        { title: 'Grandma' },
+      ],
+    });
+    expect(ok.credits).toHaveLength(2);
+    expect(recipe.safeParse({ ...base, credits: [{ title: 'x', url: 'not a url' }] }).success).toBe(false);
+    expect(recipe.safeParse({ ...base, credits: [{ title: 'x', url: 'javascript:alert(1)' }] }).success).toBe(false);
+  });
+
   it('surfaces step issues with a path to the step', () => {
     const r = recipe.safeParse({ ...base, steps: [{ do: 'pour', use: ['oil', 'salt'] }] });
     expect(r.error?.issues).toContainEqual(

@@ -24,6 +24,11 @@ steps:
     # detail:                 # time, temperature, cue
     # id:                     # name the result of a sub-assembly
     # start: true             # begin a new sub-assembly
+
+credits: []
+#  - title:                   # page title, book, person
+#    url:                     # optional
+#    note:                    # optional: what came from it
 ---
 
 ## Notes
