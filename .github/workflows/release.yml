@@ -1,0 +1,19 @@
+# Keeps a release PR open that collects changes since the last release into
+# CHANGELOG.md, grouped by recipe-focused commit types (see docs/commits.md
+# and release-please-config.json). Merging that PR tags a new edition and
+# creates a GitHub release. Publishing the site is separate (deploy.yml).
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v5
