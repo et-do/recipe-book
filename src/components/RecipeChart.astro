@@ -1,0 +1,148 @@
+---
+/**
+ * The "Cooking for Engineers" chart: ingredients down the left, each step a
+ * cell spanning the rows it combines, time running left to right. Layout
+ * comes from layoutChart(); this component only renders it.
+ */
+import { layoutChart } from '../lib/recipe/chart';
+import { formatQty } from '../lib/recipe/format';
+import type { Recipe } from '../lib/recipe/schema';
+
+interface Props {
+  recipe: Pick<Recipe, 'title' | 'prep' | 'ingredients' | 'steps'>;
+}
+
+const { recipe } = Astro.props;
+const { ingredients, steps, prep } = recipe;
+const chart = layoutChart(ingredients, steps);
+const width = 2 + chart.columns;
+---
+
+<div class="chart-scroll">
+  <table class="chart">
+    <caption>{recipe.title}: ingredients and steps</caption>
+    {
+      prep.length > 0 && (
+        <thead>
+          {prep.map((line) => (
+            <tr>
+              <td class="prep" colspan={width}>
+                {line}
+              </td>
+            </tr>
+          ))}
+        </thead>
+      )
+    }
+    <tbody>
+      {
+        chart.rows.map((row) => {
+          const ing = ingredients[row.ingredient]!;
+          return (
+            <tr class:list={[{ 'has-gap': row.gap > 0 }]}>
+              <td class="qty">{formatQty(ing)}</td>
+              <th class="item" scope="row">
+                {ing.item}
+                {ing.note && <span class="note">, {ing.note}</span>}
+                {ing.alt && <span class="alt">{ing.alt}</span>}
+              </th>
+              {row.gap > 0 && <td class="gap" colspan={row.gap} />}
+              {row.cells.map((cell) => {
+                const step = steps[cell.step]!;
+                return (
+                  <td class="step" rowspan={cell.rowspan}>
+                    <span class="do">{step.do}</span>
+                    {step.detail && <span class="detail">{step.detail}</span>}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .chart-scroll {
+    overflow-x: auto;
+  }
+
+  .chart {
+    --chart-line: #3a3a3a;
+    --chart-step-bg: #f4efe6;
+    --chart-muted: #6b6b6b;
+
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+
+  caption {
+    /* Visually hidden; the page heading already names the recipe. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  td,
+  th {
+    border: 1px solid var(--chart-line);
+    padding: 0.35em 0.6em;
+  }
+
+  .prep {
+    font-style: italic;
+  }
+
+  .qty {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    border-right: 0;
+  }
+
+  .item {
+    text-align: left;
+    font-weight: normal;
+    border-left: 0;
+  }
+
+  /* The ingredient's band runs on to the step that first uses it. */
+  .has-gap .item {
+    border-right: 0;
+  }
+  .gap {
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .note,
+  .alt {
+    color: var(--chart-muted);
+  }
+  .alt {
+    margin-left: 0.5em;
+    font-size: 0.85em;
+  }
+
+  .step {
+    background: var(--chart-step-bg);
+    text-align: center;
+    vertical-align: middle;
+    min-width: 5em;
+  }
+  .do {
+    display: block;
+    font-weight: 600;
+  }
+  .detail {
+    display: block;
+    color: var(--chart-muted);
+    font-size: 0.8em;
+  }
+</style>

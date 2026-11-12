@@ -1,0 +1,44 @@
+---
+/**
+ * Dev-only preview of the recipe chart on every fixture shape.
+ * Served at /dev/charts by `npm run dev`; never built (see astro.config.mjs).
+ */
+import RecipeChart from '../components/RecipeChart.astro';
+import { fixtures } from '../lib/recipe/fixtures';
+import { recipe } from '../lib/recipe/schema';
+
+const recipes = Object.entries(fixtures).map(([name, f]) => ({ name, data: recipe.parse(f) }));
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Chart fixtures</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 60rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      section {
+        margin-bottom: 3rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chart fixtures</h1>
+    <p>Dev-only. Test shapes from <code>src/lib/recipe/fixtures.ts</code>, not real recipes.</p>
+    {
+      recipes.map(({ name, data }) => (
+        <section>
+          <h2>
+            {data.title} <small>({name})</small>
+          </h2>
+          <RecipeChart recipe={data} />
+        </section>
+      ))
+    }
+  </body>
+</html>

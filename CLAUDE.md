@@ -5,13 +5,15 @@ with an interactive coil-bound "recipe book" view.
 
 ## Current state
 
-Roadmap items 1, 2 and 6 are done. Astro 7 (strict TS) at the root, live at
-https://recipes.ethan-domokos.ca, deployed by GitHub Actions. Content
+Roadmap items 1, 2, 3 and 6 are done. Astro 7 (strict TS) at the root, live
+at https://recipes.ethan-domokos.ca, deployed by GitHub Actions. Content
 collections and the recipe schema validate everything in
-`docs/recipe-format.md` (v1) at build time; the step logic is unit tested
-with Vitest (`npm test`). The site itself is still a single placeholder
-page, and `content/` is empty, so the build logs "No files found" warnings;
-those are expected. The next step is item 3 of the roadmap below.
+`docs/recipe-format.md` (v1) at build time. The chart component exists and
+is previewed on test fixtures at `/dev/charts` (dev server only); Ethan has
+not yet reviewed it visually. Logic is unit tested with Vitest (`npm test`).
+The published site is still a single placeholder page, and `content/` is
+empty, so the build logs "No files found" warnings; those are expected. The
+next step is item 4 of the roadmap below.
 
 Update this section and the roadmap as work lands.
 
@@ -75,12 +77,19 @@ recipes never live under `src/`.
    (step analysis: issues + each step's row span and inputs). Entry id =
    file name; category = recipe's folder (derive from `entry.filePath`).
    Duplicate slugs fail the build (`prerenderConflictBehavior: 'error'`).
-   Added `ref` and `note` ingredient fields (see format doc). Cross-collection
-   checks (wiki links, slug uniqueness across collections, `ref` pointing at
-   a real ingredient page) belong to item 4.
-3. Recipe chart component: turn `ingredients` + `steps` into the row-spanning
-   table, building on `analyseSteps()` nodes. This is the hardest and most important piece; get it right on a few
-   differently shaped recipes (linear, sub-assembly, no-cook) before styling.
+   Added `ref` and `note` ingredient fields and a `credits` list (title, url,
+   note) at Ethan's request (see format doc). Cross-collection checks (wiki
+   links, slug uniqueness across collections, `ref` pointing at a real
+   ingredient page) belong to item 4.
+3. ~~Recipe chart component.~~ Done. `src/lib/recipe/chart.ts` lays out the
+   grid (each step one column wide, placed just before the step that
+   consumes it; blank gap from an ingredient to its first step);
+   `src/components/RecipeChart.astro` renders it with basic styling.
+   Fixtures for five shapes (linear, sub-assembly last, sub-assembly first,
+   two sub-assemblies, no-cook) in `src/lib/recipe/fixtures.ts`, shared by
+   tests and the dev-only `/dev/charts` page (injected by an inline
+   integration in `astro.config.mjs` only for `astro dev`). Ingredient-page
+   links in the chart and the credits display come with item 4.
 4. Wiki shell: home, category indexes, recipe / ingredient / technique pages,
    `[[wikilink]]` remark plugin, backlinks, tag pages, search (Pagefind).
 5. Book view (`/book`): coil binder, CSS 3D page flip, keyboard / swipe / click,

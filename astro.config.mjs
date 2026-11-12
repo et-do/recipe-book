@@ -7,6 +7,19 @@ export default defineConfig({
   // Two content files with the same slug (or two pages with the same route)
   // fail the build instead of one silently winning.
   prerenderConflictBehavior: 'error',
+  integrations: [
+    {
+      // Dev-only pages (fixture previews); never part of the built site.
+      name: 'dev-pages',
+      hooks: {
+        'astro:config:setup': ({ command, injectRoute }) => {
+          if (command === 'dev') {
+            injectRoute({ pattern: '/dev/charts', entrypoint: './src/dev/charts.astro' });
+          }
+        },
+      },
+    },
+  ],
   server: {
     // Listen on all interfaces so the devcontainer's forwarded port works
     // (same as passing --host).
