@@ -1,0 +1,60 @@
+{
+  "name": "recipe-book",
+
+  // Floating tags on purpose: every rebuild picks up the current stable
+  // Ubuntu LTS base, Node LTS, GitHub CLI and Claude Code.
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "lts" },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+
+  "remoteUser": "vscode",
+
+  "mounts": [
+    // Claude Code state (conversations, auth, settings, memory). Named volume,
+    // so it survives container rebuilds. Fixed name, so it also survives the
+    // repo folder being moved or re-cloned.
+    "source=recipe-book-claude,target=/home/vscode/.claude,type=volume",
+    // Shell history across rebuilds.
+    "source=recipe-book-shell-history,target=/commandhistory,type=volume",
+    // Keep node_modules off the Windows bind mount (much faster installs,
+    // no symlink problems). Shows up as an empty folder on the host.
+    "source=recipe-book-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ],
+
+  "containerEnv": {
+    // Puts .claude.json (login + per-project state) inside the volume too;
+    // by default it lives in ~ and would be lost on rebuild.
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+    "HISTFILE": "/commandhistory/.bash_history",
+    "PROMPT_COMMAND": "history -a"
+  },
+
+  // Fresh named volumes are owned by root; hand them to the dev user.
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.claude /commandhistory ${containerWorkspaceFolder}/node_modules && if [ -f package.json ]; then npm install; fi",
+
+  // 4321 = Astro dev server, 4322 = Astro preview.
+  "forwardPorts": [4321, 4322],
+  "portsAttributes": {
+    "4321": { "label": "Site (dev)", "onAutoForward": "notify" },
+    "4322": { "label": "Site (preview)", "onAutoForward": "silent" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "astro-build.astro-vscode",
+        "redhat.vscode-yaml",
+        "editorconfig.editorconfig",
+        "github.vscode-github-actions"
+      ],
+      "settings": {
+        "files.eol": "\n",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}

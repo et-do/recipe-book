@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+
+# Personal Claude Code settings (shared ones in .claude/settings.json are committed)
+.claude/settings.local.json
