@@ -12,13 +12,15 @@
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
-    "test": "vitest run"
+    "test": "vitest run",
+    "screenshot": "node scripts/screenshot.mjs"
   },
   "dependencies": {
     "astro": "^7.4.11"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "playwright": "^1.65.0",
     "typescript": "^6.0.3",
     "vitest": "^5.1.0"
   }

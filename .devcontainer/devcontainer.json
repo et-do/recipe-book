@@ -33,7 +33,7 @@
   },
 
   // Fresh named volumes are owned by root; hand them to the dev user.
-  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.claude /commandhistory ${containerWorkspaceFolder}/node_modules && if [ -f package.json ]; then npm install; fi",
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.claude /commandhistory ${containerWorkspaceFolder}/node_modules && if [ -f package.json ]; then npm install && npx playwright install --with-deps chromium; fi",
 
   // 4321 = Astro dev server, 4322 = Astro preview.
   "forwardPorts": [4321, 4322],

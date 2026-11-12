@@ -128,5 +128,16 @@ tweaks, ingredient pages as the single home for substitutions and densities.
 ## Conventions
 
 - Slugs and ids: kebab-case, permanent once published.
-- Commit or push only when Ethan asks.
+- Commit or push only when Ethan asks. Ethan runs commits himself; give him
+  the commands. Conventional Commits with the cookbook types in
+  `docs/commits.md` (`recipe`, `tweak`, `wiki`, `feat`, `fix`, plus hidden
+  housekeeping types), 1-2 sentences, no co-author trailer.
+- Releases: release-please (`release-please-config.json`,
+  `.github/workflows/release.yml`) keeps a release PR with a recipe-focused
+  changelog. Needs "Allow GitHub Actions to create and approve pull
+  requests" enabled in the repo settings.
+- Visual checks: with the dev server running,
+  `npm run screenshot -- <path> <out.png> [width]` (Playwright + Chromium,
+  installed by `postCreateCommand`). Put screenshots in the scratchpad, not
+  the repo.
 - Keep recipe text short and imperative.
