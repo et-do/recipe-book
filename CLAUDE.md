@@ -137,7 +137,12 @@ tweaks, ingredient pages as the single home for substitutions and densities.
 - Commit or push only when Ethan asks. Ethan runs commits himself; give him
   the commands. Conventional Commits with the cookbook types in
   `docs/commits.md` (`recipe`, `tweak`, `wiki`, `feat`, `fix`, plus hidden
-  housekeeping types), 1-2 sentences, no co-author trailer.
+  housekeeping types), 1-2 sentences, no co-author trailer. Enforced by
+  commitlint (`commitlint.config.js`) in a husky `commit-msg` hook and in
+  CI; `npm run commit` is the commitizen prompt.
+- Scratch content for trying out the site goes under `content/` with a
+  `tmp-` or `zz-tmp` name prefix. The `pre-commit` hook and CI reject it
+  (`scripts/check-scratch-content.mjs`); delete it once done.
 - Releases: release-please (`release-please-config.json`,
   `.github/workflows/release.yml`) keeps a release PR with a recipe-focused
   changelog. Needs "Allow GitHub Actions to create and approve pull

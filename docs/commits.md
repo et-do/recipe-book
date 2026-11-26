@@ -26,6 +26,22 @@ Use the recipe or page slug as the scope, so the changelog reads well:
     feat: add servings scaler
     fix(brownies): bake time was in the wrong step
 
+Keep the whole message to a sentence or two: a header of up to 100
+characters, and an optional body of up to 300. No `Co-authored-by` trailers.
+
+## Checks
+
+- `npm run commit` asks for the type, scope and summary and writes a valid
+  message (commitizen). Plain `git commit` works too.
+- A `commit-msg` hook checks every message against `commitlint.config.js`
+  (the rules above). A `pre-commit` hook refuses scratch content: any file
+  or folder under `content/` whose name starts with `tmp-` or `zz-tmp`.
+  These are for trying out the site locally and are never published.
+- The hooks are installed by `npm install` (husky), so they run inside the
+  devcontainer. Committing from Windows outside the container skips them.
+- CI repeats both checks on pull requests, for every commit and for the PR
+  title.
+
 ## What the version means
 
 - **Major**: the recipe format or URL structure changed in a breaking way.
