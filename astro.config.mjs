@@ -1,5 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { satteri } from '@astrojs/markdown-satteri';
+import { recipeSections, wikilinks } from './src/lib/wiki/markdown.ts';
 
 // https://astro.build/config
 export default defineConfig({
@@ -7,6 +9,9 @@ export default defineConfig({
   // Two content files with the same slug (or two pages with the same route)
   // fail the build instead of one silently winning.
   prerenderConflictBehavior: 'error',
+  markdown: {
+    processor: satteri({ mdastPlugins: [wikilinks, recipeSections] }),
+  },
   integrations: [
     {
       // Dev-only pages (fixture previews); never part of the built site.

@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import { tagUrl } from '../../lib/content';
+import { getTags } from '../../lib/tags';
+
+const tags = await getTags();
+---
+
+<Base title="Tags">
+  <div class="prose">
+    <h1>Tags</h1>
+    {
+      tags.length === 0 ? (
+        <p class="muted">No tags yet.</p>
+      ) : (
+        <ul class="tags">
+          {tags.map((t) => (
+            <li>
+              <a href={tagUrl(t.tag)}>
+                {t.tag.replace(/-/g, ' ')} <span class="muted">{t.recipes.length + t.pages.length}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</Base>

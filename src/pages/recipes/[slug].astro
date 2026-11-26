@@ -1,0 +1,131 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import RecipeChart from '../../components/RecipeChart.astro';
+import RecipeMethod from '../../components/RecipeMethod.astro';
+import Backlinks from '../../components/Backlinks.astro';
+import TagList from '../../components/TagList.astro';
+import {
+  backlinks,
+  categoryOf,
+  categoryUrl,
+  formatMinutes,
+  getRecipes,
+  humanise,
+  ingredientPageId,
+  splitIntro,
+  type RecipeEntry,
+} from '../../lib/content';
+import { scanContent } from '../../lib/wiki/index';
+
+export const getStaticPaths = (async () =>
+  (await getRecipes()).map((entry) => ({ params: { slug: entry.id }, props: { entry } }))) satisfies GetStaticPaths;
+
+interface Props {
+  entry: RecipeEntry;
+}
+
+const { entry } = Astro.props;
+const r = entry.data;
+const category = categoryOf(entry);
+const { intro, sections } = splitIntro(entry.rendered?.html ?? '');
+const index = scanContent();
+const linkIngredient = (ing: (typeof r.ingredients)[number]) => {
+  const page = index.get(ingredientPageId(ing));
+  return page?.kind === 'ingredient' ? page.url : undefined;
+};
+const linked = await backlinks(entry.id);
+---
+
+<Base title={r.title} description={r.description} searchable>
+  <article class="recipe">
+    <header class="prose">
+      <p class="crumb" data-pagefind-ignore><a href={categoryUrl(category)}>{humanise(category)}</a></p>
+      <h1>{r.title}</h1>
+      <p class="lead">{r.description}</p>
+      <dl class="facts">
+        <div><dt>Makes</dt><dd>{r.yield.qty} {r.yield.unit}</dd></div>
+        <div><dt>Active</dt><dd>{formatMinutes(r.time.active)}</dd></div>
+        <div><dt>Total</dt><dd>{formatMinutes(r.time.total)}</dd></div>
+        {
+          r.equipment.length > 0 && (
+            <div>
+              <dt>Equipment</dt>
+              <dd>{r.equipment.join(', ')}</dd>
+            </div>
+          )
+        }
+      </dl>
+      <TagList tags={r.tags} />
+    </header>
+
+    {intro.trim() && <div class="prose intro" set:html={intro} />}
+
+    <section class="chart-section" aria-label="Chart">
+      <RecipeChart recipe={r} linkIngredient={linkIngredient} />
+    </section>
+
+    <div class="prose">
+      <RecipeMethod recipe={r} linkIngredient={linkIngredient} where={entry.filePath} />
+    </div>
+
+    {sections && <div class="prose sections" set:html={sections} />}
+
+    {
+      r.credits.length > 0 && (
+        <section class="prose credits">
+          <h2>Credits</h2>
+          <ul>
+            {r.credits.map((c) => (
+              <li>
+                {c.url ? (
+                  <a href={c.url} rel="noopener">
+                    {c.title}
+                  </a>
+                ) : (
+                  c.title
+                )}
+                {c.note && <span class="muted"> · {c.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <div class="prose"><Backlinks pages={linked} /></div>
+  </article>
+</Base>
+
+<style>
+  .crumb {
+    margin: 0 0 0.3em;
+    font-size: 0.9rem;
+  }
+  .lead {
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin: 0 0 1em;
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin: 0 0 1em;
+  }
+  .facts dt {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .facts dd {
+    margin: 0;
+  }
+  .intro {
+    font-size: 1.05rem;
+  }
+  .chart-section {
+    margin: 2rem 0;
+  }
+</style>

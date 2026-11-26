@@ -1,0 +1,106 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Mark the main content for the search index. */
+  searchable?: boolean;
+}
+
+const { title, description, searchable = false } = Astro.props;
+const site = 'Recipe Book';
+const fullTitle = title === site ? site : `${title} · ${site}`;
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/recipes/', label: 'Recipes' },
+  { href: '/ingredients/', label: 'Ingredients' },
+  { href: '/techniques/', label: 'Techniques' },
+  { href: '/tags/', label: 'Tags' },
+  { href: '/search/', label: 'Search' },
+];
+---
+
+<html lang="en-CA">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{fullTitle}</title>
+    {description && <meta name="description" content={description} />}
+    {Astro.site && <link rel="canonical" href={new URL(path, Astro.site)} />}
+    <slot name="head" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap bar">
+        <a class="brand" href="/">{site}</a>
+        <nav aria-label="Main">
+          <ul>
+            {
+              nav.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={path.startsWith(item.href) ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main class="wrap" data-pagefind-body={searchable ? '' : undefined}>
+      <slot />
+    </main>
+    <footer class="wrap site-footer muted">
+      <a href="https://github.com/et-do/recipe-book">Source</a>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 2rem;
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-block: 0.9rem;
+  }
+  .brand {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+  }
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  nav a[aria-current='page'] {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .site-footer {
+    margin-top: 4rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.9rem;
+  }
+</style>

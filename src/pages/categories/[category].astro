@@ -1,0 +1,30 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import RecipeList from '../../components/RecipeList.astro';
+import { humanise, recipesByCategory, type RecipeEntry } from '../../lib/content';
+
+export const getStaticPaths = (async () =>
+  (await recipesByCategory()).map(([category, recipes]) => ({
+    params: { category },
+    props: { recipes },
+  }))) satisfies GetStaticPaths;
+
+const { category } = Astro.params;
+const { recipes } = Astro.props as { recipes: RecipeEntry[] };
+---
+
+<Base title={humanise(category)}>
+  <div class="prose">
+    <p class="crumb"><a href="/recipes/">Recipes</a></p>
+    <h1>{humanise(category)}</h1>
+    <RecipeList recipes={recipes} />
+  </div>
+</Base>
+
+<style>
+  .crumb {
+    margin: 0 0 0.3em;
+    font-size: 0.9rem;
+  }
+</style>

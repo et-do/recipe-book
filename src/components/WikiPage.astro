@@ -1,0 +1,51 @@
+---
+/** Shared page for ingredient and technique entries. */
+import Base from '../layouts/Base.astro';
+import Backlinks from './Backlinks.astro';
+import RecipeList from './RecipeList.astro';
+import TagList from './TagList.astro';
+import { backlinks, recipesUsing, type WikiEntry } from '../lib/content';
+
+interface Props {
+  entry: WikiEntry;
+}
+
+const { entry } = Astro.props;
+const { title, description, tags } = entry.data;
+const isIngredient = entry.collection === 'ingredients';
+const usedIn = isIngredient ? await recipesUsing(entry.id) : [];
+const linked = await backlinks(entry.id);
+const section = isIngredient
+  ? { href: '/ingredients/', label: 'Ingredients' }
+  : { href: '/techniques/', label: 'Techniques' };
+---
+
+<Base title={title} description={description} searchable>
+  <article class="prose">
+    <p class="crumb" data-pagefind-ignore><a href={section.href}>{section.label}</a></p>
+    <h1>{title}</h1>
+    {description && <p class="lead">{description}</p>}
+    <TagList tags={tags} />
+    <div set:html={entry.rendered?.html ?? ''} />
+    {
+      usedIn.length > 0 && (
+        <aside data-pagefind-ignore>
+          <h2>Used in</h2>
+          <RecipeList recipes={usedIn} />
+        </aside>
+      )
+    }
+    <Backlinks pages={linked} />
+  </article>
+</Base>
+
+<style>
+  .crumb {
+    margin: 0 0 0.3em;
+    font-size: 0.9rem;
+  }
+  .lead {
+    font-size: 1.15rem;
+    color: var(--muted);
+  }
+</style>

@@ -10,9 +10,11 @@ import type { Recipe } from '../lib/recipe/schema';
 
 interface Props {
   recipe: Pick<Recipe, 'title' | 'prep' | 'ingredients' | 'steps'>;
+  /** URL of an ingredient's wiki page, if it has one. */
+  linkIngredient?: (ing: Recipe['ingredients'][number]) => string | undefined;
 }
 
-const { recipe } = Astro.props;
+const { recipe, linkIngredient = () => undefined } = Astro.props;
 const { ingredients, steps, prep } = recipe;
 const chart = layoutChart(ingredients, steps);
 const width = 2 + chart.columns;
@@ -38,11 +40,12 @@ const width = 2 + chart.columns;
       {
         chart.rows.map((row) => {
           const ing = ingredients[row.ingredient]!;
+          const href = linkIngredient(ing);
           return (
             <tr class:list={[{ 'has-gap': row.gap > 0 }]}>
               <td class="qty">{formatQty(ing)}</td>
               <th class="item" scope="row">
-                {ing.item}
+                {href ? <a href={href}>{ing.item}</a> : ing.item}
                 {ing.note && <span class="note">, {ing.note}</span>}
                 {ing.alt && <span class="alt">{ing.alt}</span>}
               </th>

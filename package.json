@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
@@ -16,10 +16,17 @@
     "screenshot": "node scripts/screenshot.mjs"
   },
   "dependencies": {
-    "astro": "^7.4.11"
+    "@astrojs/markdown-satteri": "^0.4.9",
+    "astro": "^7.4.11",
+    "satteri": "^0.11.7",
+    "unist-util-visit": "^5.2.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^24.19.2",
+    "pagefind": "~1.5.2",
     "playwright": "^1.65.0",
     "typescript": "^6.0.3",
     "vitest": "^5.1.0"

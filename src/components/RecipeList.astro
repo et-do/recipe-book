@@ -1,0 +1,20 @@
+---
+import { recipeUrl, type RecipeEntry } from '../lib/content';
+
+interface Props {
+  recipes: RecipeEntry[];
+}
+
+const { recipes } = Astro.props;
+---
+
+<ul class="list-plain recipe-list">
+  {
+    recipes.map((r) => (
+      <li>
+        <a href={recipeUrl(r.id)}>{r.data.title}</a>
+        <span class="muted"> · {r.data.description}</span>
+      </li>
+    ))
+  }
+</ul>

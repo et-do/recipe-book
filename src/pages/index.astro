@@ -1,16 +1,41 @@
 ---
+import Base from '../layouts/Base.astro';
+import RecipeList from '../components/RecipeList.astro';
+import { categoryUrl, humanise, recipesByCategory } from '../lib/content';
+
+const groups = await recipesByCategory();
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Recipe Book</title>
-  </head>
-  <body>
+<Base title="Recipe Book" description="Ethan's recipes: weighed in grams, charted step by step.">
+  <div class="prose">
     <h1>Recipe Book</h1>
-  </body>
-</html>
+    <p class="lead">
+      Recipes weighed in grams and charted step by step, with notes on the <a href="/ingredients/">ingredients</a> and
+      <a href="/techniques/">techniques</a> behind them.
+    </p>
+    {
+      groups.length === 0 ? (
+        <p class="muted">No recipes yet.</p>
+      ) : (
+        groups.map(([category, recipes]) => (
+          <section>
+            <h2>
+              <a href={categoryUrl(category)}>{humanise(category)}</a>
+            </h2>
+            <RecipeList recipes={recipes} />
+          </section>
+        ))
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .lead {
+    font-size: 1.15rem;
+  }
+  h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+</style>

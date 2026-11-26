@@ -1,0 +1,25 @@
+---
+import type { PageRef } from '../lib/wiki/index';
+
+interface Props {
+  pages: PageRef[];
+  heading?: string;
+}
+
+const { pages, heading = 'Linked from' } = Astro.props;
+---
+
+{
+  pages.length > 0 && (
+    <aside class="backlinks" data-pagefind-ignore>
+      <h2>{heading}</h2>
+      <ul class="list-plain">
+        {pages.map((p) => (
+          <li>
+            <a href={p.url}>{p.title}</a> <span class="muted">({p.kind})</span>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  )
+}
