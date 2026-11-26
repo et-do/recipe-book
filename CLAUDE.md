@@ -109,11 +109,17 @@ tweaks, ingredient pages as the single home for substitutions and densities.
 
 - Work inside the devcontainer. Node is the current LTS; `gh` and `claude` are
   installed.
-- Claude Code state lives in the `recipe-book-claude` Docker volume, mounted at
-  `/home/vscode/.claude` with `CLAUDE_CONFIG_DIR` pointing at it. Conversations
-  and login survive rebuilds. Do not delete that volume or change the mount
-  target without telling Ethan.
-- `node_modules` is a named volume too, so it is empty on the Windows host.
+- Claude Code state (conversations, login, memory) is bind-mounted from the
+  Windows host folder `%USERPROFILE%\.devcontainer-state\recipe-book\claude`
+  to `/home/vscode/.claude`, with `CLAUDE_CONFIG_DIR` pointing at it. Shell
+  history sits next to it in `shell-history`. `initializeCommand` creates
+  both folders. This used to be a named Docker volume, but a Docker Desktop
+  update on 2026-11-26 wiped every named volume and all chat history. Never
+  move Claude state back into a Docker volume, and never change or remove
+  this mount without telling Ethan. The old `recipe-book-claude` and
+  `recipe-book-shell-history` volumes are unused now and can be deleted.
+- `node_modules` is a named volume (safe to lose: `npm install` restores it),
+  so it is empty on the Windows host.
   `postCreateCommand` runs `npm install` once a `package.json` exists.
 - The workspace is a Windows bind mount: file-change events do not reach the
   container, so `astro.config.mjs` sets `vite.server.watch.usePolling: true`.

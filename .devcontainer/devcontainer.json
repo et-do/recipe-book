@@ -12,15 +12,23 @@
 
   "remoteUser": "vscode",
 
+  // Runs on the Windows host (cmd.exe) before the container starts: make sure
+  // the host folders for the bind mounts below exist, or Docker refuses to
+  // start. Never fails.
+  "initializeCommand": "mkdir \"%USERPROFILE%\\.devcontainer-state\\recipe-book\\claude\" \"%USERPROFILE%\\.devcontainer-state\\recipe-book\\shell-history\" 2>nul & exit /b 0",
+
   "mounts": [
-    // Claude Code state (conversations, auth, settings, memory). Named volume,
-    // so it survives container rebuilds. Fixed name, so it also survives the
-    // repo folder being moved or re-cloned.
-    "source=recipe-book-claude,target=/home/vscode/.claude,type=volume",
-    // Shell history across rebuilds.
-    "source=recipe-book-shell-history,target=/commandhistory,type=volume",
+    // Claude Code state (conversations, auth, settings, memory) lives in a
+    // plain Windows folder, NOT a Docker volume: a Docker Desktop update on
+    // 2026-11-26 wiped every named volume and all chat history with it.
+    // Host path: %USERPROFILE%\.devcontainer-state\recipe-book\claude
+    // Do not move this back to a named volume.
+    "source=${localEnv:USERPROFILE}/.devcontainer-state/recipe-book/claude,target=/home/vscode/.claude,type=bind",
+    // Shell history, same reason.
+    "source=${localEnv:USERPROFILE}/.devcontainer-state/recipe-book/shell-history,target=/commandhistory,type=bind",
     // Keep node_modules off the Windows bind mount (much faster installs,
     // no symlink problems). Shows up as an empty folder on the host.
+    // A volume is fine here: losing it only costs an `npm install`.
     "source=recipe-book-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
   ],
 
@@ -32,7 +40,7 @@
     "PROMPT_COMMAND": "history -a"
   },
 
-  // Fresh named volumes are owned by root; hand them to the dev user.
+  // Fresh mounts can be owned by root; hand them to the dev user.
   "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.claude /commandhistory ${containerWorkspaceFolder}/node_modules && if [ -f package.json ]; then npm install && npx playwright install --with-deps chromium; fi",
 
   // 4321 = Astro dev server, 4322 = Astro preview.
