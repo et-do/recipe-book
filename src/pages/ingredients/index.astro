@@ -1,0 +1,15 @@
+---
+import Base from '../../layouts/Base.astro';
+import WikiList from '../../components/WikiList.astro';
+import { getIngredients } from '../../lib/content';
+
+const pages = await getIngredients();
+---
+
+<Base title="Ingredients">
+  <div class="prose">
+    <h1>Ingredients</h1>
+    <p class="muted">What things are, how to substitute them, and which recipes use them.</p>
+    {pages.length > 0 ? <WikiList kind="ingredient" pages={pages} /> : <p>No ingredient pages yet.</p>}
+  </div>
+</Base>

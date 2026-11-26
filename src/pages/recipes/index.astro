@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import RecipeList from '../../components/RecipeList.astro';
+import { categoryUrl, humanise, recipesByCategory } from '../../lib/content';
+
+const groups = await recipesByCategory();
+const count = groups.reduce((n, [, rs]) => n + rs.length, 0);
+---
+
+<Base title="Recipes">
+  <div class="prose">
+    <h1>Recipes</h1>
+    {
+      count === 0 ? (
+        <p class="muted">No recipes yet.</p>
+      ) : (
+        <>
+          <p class="muted">
+            {count} {count === 1 ? 'recipe' : 'recipes'} in {groups.length}{' '}
+            {groups.length === 1 ? 'category' : 'categories'}.
+          </p>
+          {groups.map(([category, recipes]) => (
+            <section>
+              <h2>
+                <a href={categoryUrl(category)}>{humanise(category)}</a>
+              </h2>
+              <RecipeList recipes={recipes} />
+            </section>
+          ))}
+        </>
+      )
+    }
+  </div>
+</Base>

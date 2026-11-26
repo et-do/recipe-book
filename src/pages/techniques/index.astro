@@ -1,0 +1,15 @@
+---
+import Base from '../../layouts/Base.astro';
+import WikiList from '../../components/WikiList.astro';
+import { getTechniques } from '../../lib/content';
+
+const pages = await getTechniques();
+---
+
+<Base title="Techniques">
+  <div class="prose">
+    <h1>Techniques</h1>
+    <p class="muted">Methods that more than one recipe relies on.</p>
+    {pages.length > 0 ? <WikiList kind="technique" pages={pages} /> : <p>No technique pages yet.</p>}
+  </div>
+</Base>

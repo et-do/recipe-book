@@ -1,0 +1,49 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import RecipeList from '../../components/RecipeList.astro';
+import { pageUrl } from '../../lib/wiki/index';
+import { getTags, type TagGroup } from '../../lib/tags';
+
+export const getStaticPaths = (async () =>
+  (await getTags()).map((group) => ({ params: { tag: group.tag }, props: { group } }))) satisfies GetStaticPaths;
+
+const { group } = Astro.props as { group: TagGroup };
+const label = group.tag.replace(/-/g, ' ');
+---
+
+<Base title={`Tagged “${label}”`}>
+  <div class="prose">
+    <p class="crumb"><a href="/tags/">Tags</a></p>
+    <h1>{label}</h1>
+    {
+      group.recipes.length > 0 && (
+        <section>
+          <h2>Recipes</h2>
+          <RecipeList recipes={group.recipes} />
+        </section>
+      )
+    }
+    {
+      group.pages.length > 0 && (
+        <section>
+          <h2>Ingredients and techniques</h2>
+          <ul class="list-plain">
+            {group.pages.map((p) => (
+              <li>
+                <a href={pageUrl(p.collection === 'ingredients' ? 'ingredient' : 'technique', p.id)}>{p.data.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .crumb {
+    margin: 0 0 0.3em;
+    font-size: 0.9rem;
+  }
+</style>

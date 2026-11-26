@@ -1,0 +1,129 @@
+---
+/**
+ * The written method, generated from the same steps as the chart: one
+ * numbered item per step with the action, what goes in (with amounts), the
+ * detail, and the step's note. Prep comes first as "Before you start".
+ */
+import { analyseSteps } from '../lib/recipe/steps';
+import { formatQty } from '../lib/recipe/format';
+import type { Recipe } from '../lib/recipe/schema';
+import { scanContent, wikilinksToHtml } from '../lib/wiki/index';
+
+interface Props {
+  recipe: Pick<Recipe, 'prep' | 'ingredients' | 'steps'>;
+  /** URL of an ingredient's wiki page, if it has one. */
+  linkIngredient?: (ing: Recipe['ingredients'][number]) => string | undefined;
+  /** For error messages about broken links. */
+  where?: string;
+}
+
+const { recipe, linkIngredient = () => undefined, where = 'a recipe' } = Astro.props;
+const { prep, ingredients, steps } = recipe;
+const { nodes } = analyseSteps(ingredients, steps);
+const index = scanContent();
+const rich = (text: string, i: number) => wikilinksToHtml(text, index, `${where}, step ${i + 1}`);
+const capitalise = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+type Ingredient = Recipe['ingredients'][number];
+type Addition =
+  | { kind: 'ingredient'; qty: string; ing: Ingredient; href: string | undefined }
+  | { kind: 'named'; name: string; step: number };
+
+/** What a step adds, beyond the result it continues from. */
+const additions = nodes.map((node) =>
+  node.inputs.flatMap((input): Addition[] => {
+    if (input.kind === 'ingredient') {
+      const ing = ingredients[input.row]!;
+      const qty = formatQty(ing);
+      return [{ kind: 'ingredient' as const, qty, ing, href: linkIngredient(ing) }];
+    }
+    // The carried-over result (never named) needs no mention; named
+    // sub-assemblies do.
+    const from = steps[input.index]!;
+    if (from.id === undefined) return [];
+    return [{ kind: 'named' as const, name: from.id.replace(/-/g, ' '), step: input.index + 1 }];
+  }),
+);
+---
+
+<section class="method" aria-labelledby="method-heading">
+  <h2 id="method-heading">Method</h2>
+  {
+    prep.length > 0 && (
+      <>
+        <h3>Before you start</h3>
+        <ul class="prep">
+          {prep.map((line) => (
+            <li>{line}</li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+  <ol class="steps">
+    {
+      steps.map((step, i) => (
+        <li>
+          <p>
+            <strong class="do">{capitalise(step.do)}</strong>
+            {additions[i]!.length > 0 && (
+              <span class="adds">
+                {additions[i]!.map((a, j) => (
+                  <>
+                    {j > 0 && ', '}
+                    {a.kind === 'ingredient' ? (
+                      <span>
+                        {a.qty && <span class="qty">{a.qty}</span>}{' '}
+                        {a.href ? <a href={a.href}>{a.ing.item}</a> : a.ing.item}
+                        {a.ing.note && <span class="muted"> ({a.ing.note})</span>}
+                      </span>
+                    ) : (
+                      <span>
+                        the {a.name} <span class="muted">(step {a.step})</span>
+                      </span>
+                    )}
+                  </>
+                ))}
+              </span>
+            )}
+            {step.detail && (
+              <span class="detail">
+                {' '}
+                · <Fragment set:html={rich(step.detail, i)} />
+              </span>
+            )}
+          </p>
+          {step.note && <p class="note" set:html={rich(step.note, i)} />}
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .steps {
+    padding-left: 1.6em;
+  }
+  .steps li {
+    margin-bottom: 0.8em;
+  }
+  .steps p {
+    margin: 0;
+  }
+  .adds::before {
+    content: ' ';
+  }
+  .qty {
+    font-variant-numeric: tabular-nums;
+  }
+  .detail,
+  .muted {
+    color: var(--muted, #6b6b6b);
+  }
+  .note {
+    margin-top: 0.2em;
+  }
+  .prep {
+    padding-left: 1.2em;
+  }
+</style>

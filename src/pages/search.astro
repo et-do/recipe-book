@@ -1,0 +1,43 @@
+---
+/**
+ * Search, powered by Pagefind. The index is built after `astro build`
+ * (see the build script), so search only works on the built site
+ * (`npm run build && npm run preview`), not in `npm run dev`.
+ */
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Search">
+  <link slot="head" rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <div class="prose">
+    <h1>Search</h1>
+    <div id="search"></div>
+    <noscript>Search needs JavaScript.</noscript>
+    <p id="search-missing" class="muted" hidden>
+      Search is built with the site; run <code>npm run build &amp;&amp; npm run preview</code> to try it locally.
+    </p>
+  </div>
+</Base>
+
+<script is:inline>
+  const s = document.createElement('script');
+  s.src = '/pagefind/pagefind-ui.js';
+  s.onload = () => {
+    // eslint-disable-next-line no-undef
+    new PagefindUI({ element: '#search', showSubResults: true, showImages: false, autofocus: true });
+  };
+  s.onerror = () => {
+    document.getElementById('search-missing').hidden = false;
+  };
+  document.head.appendChild(s);
+</script>
+
+<style is:global>
+  #search {
+    --pagefind-ui-primary: var(--accent);
+    --pagefind-ui-text: var(--text);
+    --pagefind-ui-background: var(--bg);
+    --pagefind-ui-border: var(--line);
+    --pagefind-ui-font: inherit;
+  }
+</style>

@@ -4,6 +4,7 @@
  * Served at /dev/charts by `npm run dev`; never built (see astro.config.mjs).
  */
 import RecipeChart from '../components/RecipeChart.astro';
+import RecipeMethod from '../components/RecipeMethod.astro';
 import { fixtures } from '../lib/recipe/fixtures';
 import { recipe } from '../lib/recipe/schema';
 
@@ -37,6 +38,7 @@ const recipes = Object.entries(fixtures).map(([name, f]) => ({ name, data: recip
             {data.title} <small>({name})</small>
           </h2>
           <RecipeChart recipe={data} />
+          <RecipeMethod recipe={data} />
         </section>
       ))
     }

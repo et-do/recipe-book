@@ -1,0 +1,21 @@
+---
+import { pageUrl, type PageKind } from '../lib/wiki/index';
+
+interface Props {
+  kind: PageKind;
+  pages: { id: string; data: { title: string; description?: string | undefined } }[];
+}
+
+const { kind, pages } = Astro.props;
+---
+
+<ul class="list-plain">
+  {
+    pages.map((p) => (
+      <li>
+        <a href={pageUrl(kind, p.id)}>{p.data.title}</a>
+        {p.data.description && <span class="muted"> · {p.data.description}</span>}
+      </li>
+    ))
+  }
+</ul>

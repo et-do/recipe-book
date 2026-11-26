@@ -51,6 +51,8 @@ export const step = z.strictObject({
   id: kebab.optional(),
   /** Small print under the action: time, temperature, cue. */
   detail: z.string().min(1).optional(),
+  /** A sentence or two for the written method: what to look for, why. */
+  note: z.string().min(1).optional(),
 });
 
 const minutes = z.number().int().nonnegative();

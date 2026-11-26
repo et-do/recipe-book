@@ -8,20 +8,40 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
     "test": "vitest run",
-    "screenshot": "node scripts/screenshot.mjs"
+    "screenshot": "node scripts/screenshot.mjs",
+    "prepare": "husky",
+    "commit": "cz"
   },
   "dependencies": {
-    "astro": "^7.4.11"
+    "@astrojs/markdown-satteri": "^0.4.9",
+    "astro": "^7.4.11",
+    "satteri": "^0.11.7",
+    "unist-util-visit": "^5.2.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@commitlint/cz-commitlint": "^21.2.4",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^24.19.2",
+    "commitizen": "^4.3.2",
+    "husky": "^9.1.7",
+    "inquirer": "^9.3.8",
+    "pagefind": "~1.5.2",
     "playwright": "^1.65.0",
     "typescript": "^6.0.3",
     "vitest": "^5.1.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
   }
 }

@@ -1,0 +1,12 @@
+---
+import type { GetStaticPaths } from 'astro';
+import WikiPage from '../../components/WikiPage.astro';
+import { getIngredients, type WikiEntry } from '../../lib/content';
+
+export const getStaticPaths = (async () =>
+  (await getIngredients()).map((entry) => ({ params: { id: entry.id }, props: { entry } }))) satisfies GetStaticPaths;
+
+const { entry } = Astro.props as { entry: WikiEntry };
+---
+
+<WikiPage entry={entry} />
